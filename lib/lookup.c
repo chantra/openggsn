@@ -1,12 +1,12 @@
-/* 
+/*
  * Hash lookup function.
  * Copyright (C) 2003, 2004 Mondru AB.
- * 
+ *
  * The contents of this file may be used under the terms of the GNU
  * General Public License Version 2, provided that the above copyright
  * notice and this permission notice is included in all copies or
  * substantial portions of the software.
- * 
+ *
  */
 
 /**
@@ -39,12 +39,12 @@ register unsigned long int level; /* the previous hash, or an arbitrary value*/
   typedef  unsigned long  int  ub4;   /* unsigned 4-byte quantities */
   typedef  unsigned       char ub1;   /* unsigned 1-byte quantities */
   register unsigned long int a,b,c,len;
-  
+
   /* Set up the internal state */
   len = length;
   a = b = 0x9e3779b9;  /* the golden ratio; an arbitrary value */
   c = level;           /* the previous hash value */
-  
+
   /*---------------------------------------- handle most of the key */
   while (len >= 12)
     {
@@ -54,7 +54,7 @@ register unsigned long int level; /* the previous hash, or an arbitrary value*/
       mix(a,b,c);
       k += 12; len -= 12;
     }
-  
+
   /*------------------------------------- handle the last 11 bytes */
   c += length;
   switch(len)              /* all the case statements fall through */

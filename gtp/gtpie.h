@@ -1,12 +1,12 @@
-/* 
+/*
  *  OpenGGSN - Gateway GPRS Support Node
  *  Copyright (C) 2002, 2003, 2004 Mondru AB.
- * 
+ *
  *  The contents of this file may be used under the terms of the GNU
  *  General Public License Version 2, provided that the above copyright
  *  notice and this permission notice is included in all copies or
  *  substantial portions of the software.
- * 
+ *
  */
 
 #ifndef _GTPIE_H
@@ -60,7 +60,7 @@ hton64(uint64_t q)
 #define GTPIE_TLLI            4 /* Temporary Logical Link Identity (TLLI) 4 */
 #define GTPIE_P_TMSI          5 /* Packet TMSI (P-TMSI) 4 */
 #define GTPIE_QOS_PROFILE0    6 /* Quality of Service Profile GTP version 0 3*/
-                                /* 6-7 SPARE */ /* 6 is QoS Profile vers 0 */ 
+                                /* 6-7 SPARE */ /* 6 is QoS Profile vers 0 */
 #define GTPIE_REORDER         8 /* Reordering Required 1 */
 #define GTPIE_AUTH_TRIPLET    9 /* Authentication Triplet 28 */
                                 /* 10 SPARE */
@@ -225,7 +225,7 @@ struct tlv2 {
 
 extern int gtpie_tlv(void *p, unsigned int *length, unsigned int size,
 		     uint8_t t, int l, void *v);
-extern int gtpie_tv0(void *p, unsigned int *length, unsigned int size, 
+extern int gtpie_tv0(void *p, unsigned int *length, unsigned int size,
 		     uint8_t t, int l, uint8_t *v);
 extern int gtpie_tv1(void *p, unsigned int *length, unsigned int size, uint8_t t, uint8_t v);
 extern int gtpie_tv2(void *p, unsigned int *length, unsigned int size, uint8_t t, uint16_t v);
@@ -237,13 +237,13 @@ extern int gtpie_gettlv(union gtpie_member* ie[], int type, int instance,
 			unsigned int *length, void *dst, unsigned int size);
 extern int gtpie_gettv0(union gtpie_member* ie[], int type, int instance,
 			void *dst, unsigned int size);
-extern int gtpie_gettv1(union gtpie_member* ie[], int type, int instance, 
+extern int gtpie_gettv1(union gtpie_member* ie[], int type, int instance,
 			uint8_t *dst);
-extern int gtpie_gettv2(union gtpie_member* ie[], int type, int instance, 
+extern int gtpie_gettv2(union gtpie_member* ie[], int type, int instance,
 			uint16_t *dst);
-extern int gtpie_gettv4(union gtpie_member* ie[], int type, int instance, 
+extern int gtpie_gettv4(union gtpie_member* ie[], int type, int instance,
 			uint32_t *dst);
-extern int gtpie_gettv8(union gtpie_member* ie[], int type, int instance, 
+extern int gtpie_gettv8(union gtpie_member* ie[], int type, int instance,
 			uint64_t *dst);
 
 extern int gtpie_decaps(union gtpie_member* ie[], int version,

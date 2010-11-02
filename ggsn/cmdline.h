@@ -72,7 +72,7 @@ struct gengetopt_args_info
   int qos_arg;	/* Requested quality of service (default='0x0b921f').  */
   char * qos_orig;	/* Requested quality of service original value given at command line.  */
   const char *qos_help; /* Requested quality of service help description.  */
-  
+
   int help_given ;	/* Whether help was given.  */
   int version_given ;	/* Whether version was given.  */
   int fg_given ;	/* Whether fg was given.  */

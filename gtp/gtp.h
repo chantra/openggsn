@@ -1,12 +1,12 @@
-/* 
+/*
  *  OpenGGSN - Gateway GPRS Support Node
  *  Copyright (C) 2002, 2003, 2004 Mondru AB.
- * 
+ *
  *  The contents of this file may be used under the terms of the GNU
  *  General Public License Version 2, provided that the above copyright
  *  notice and this permission notice is included in all copies or
  *  substantial portions of the software.
- * 
+ *
  */
 
 #ifndef _GTP_H
@@ -67,7 +67,7 @@
 #define GTP_FAILURE_RSP      35 /* Failure Report Response */
 #define GTP_MS_PRESENT_REQ   36 /* Note MS GPRS Present Request */
 #define GTP_MS_PRESENT_RSP   37 /* Note MS GPRS Present Response */
-/* 38-47 For future use. */ 
+/* 38-47 For future use. */
 #define GTP_IDEN_REQ         48 /* Identification Request */
 #define GTP_IDEN_RSP         49 /* Identification Response */
 #define GTP_SGSN_CONTEXT_REQ 50 /* SGSN Context Request */
@@ -136,7 +136,7 @@
 
 
 
-/* GTP 0 header. 
+/* GTP 0 header.
  * Explanation to some of the fields:
  * SNDCP NPDU Number flag = 0 except for inter SGSN handover situations
  * SNDCP N-PDU LCC Number 0 = 0xff except for inter SGSN handover situations
@@ -221,13 +221,13 @@ union gtp_packet {
  * Information storage for each gsn instance
  *
  * Normally each instance of the application corresponds to
- * one instance of a gsn. 
- * 
+ * one instance of a gsn.
+ *
  * In order to avoid global variables in the application, and
  * also in order to allow several instances of a gsn in the same
  * application this struct is provided in order to store all
  * relevant information related to the gsn.
- * 
+ *
  * Note that this does not include information storage for '
  * each pdp context. This is stored in another struct.
  *************************************************************/
@@ -263,7 +263,7 @@ struct gsn_t {
   int (*cb_recovery) (struct sockaddr_in *peer, uint8_t recovery);
 
   /* Counters */
-  
+
   uint64_t err_socket;      /* Number of socket errors */
   uint64_t err_readfrom;    /* Number of readfrom errors */
   uint64_t err_sendto;      /* Number of sendto errors */
@@ -300,19 +300,19 @@ extern int gtp_newpdp(struct gsn_t *gsn, struct pdp_t **pdp,
 		      uint64_t imsi, uint8_t nsapi);
 extern int gtp_freepdp(struct gsn_t *gsn, struct pdp_t *pdp);
 
-extern int gtp_create_context_req(struct gsn_t *gsn, struct pdp_t *pdp, 
+extern int gtp_create_context_req(struct gsn_t *gsn, struct pdp_t *pdp,
 				  void *cbp);
 
 extern int gtp_set_cb_create_context_ind(struct gsn_t *gsn,
 	     int (*cb_create_context_ind) (struct pdp_t* pdp));
 
-extern int gtp_create_context_resp(struct gsn_t *gsn, struct pdp_t *pdp, 
+extern int gtp_create_context_resp(struct gsn_t *gsn, struct pdp_t *pdp,
 				   int cause);
 
-extern int gtp_update_context(struct gsn_t *gsn, struct pdp_t *pdp, 
+extern int gtp_update_context(struct gsn_t *gsn, struct pdp_t *pdp,
 			      void *cbp, struct in_addr* inetaddr);
 
-extern int gtp_delete_context_req(struct gsn_t *gsn, struct pdp_t *pdp, 
+extern int gtp_delete_context_req(struct gsn_t *gsn, struct pdp_t *pdp,
 				  void *cbp, int teardown);
 
 extern int gtp_data_req(struct gsn_t *gsn, struct pdp_t *pdp,
@@ -329,7 +329,7 @@ extern int gtp_decaps1u(struct gsn_t *gsn);
 extern int gtp_retrans(struct gsn_t *gsn);
 extern int gtp_retranstimeout(struct gsn_t *gsn, struct timeval *timeout);
 
-extern int gtp_set_cb_delete_context(struct gsn_t *gsn, 
+extern int gtp_set_cb_delete_context(struct gsn_t *gsn,
 	     int (*cb_delete_context) (struct pdp_t* pdp));
 /*extern int gtp_set_cb_create_context(struct gsn_t *gsn,
   int (*cb_create_context) (struct pdp_t* pdp)); */
@@ -351,23 +351,23 @@ int gtp_set_cb_recovery(struct gsn_t *gsn,
 
 extern int gtp_echo_req(struct gsn_t *gsn, int version, void *cbp,
 			struct in_addr *inetaddrs);
-extern int gtp_echo_resp(struct gsn_t *gsn, int version, 
+extern int gtp_echo_resp(struct gsn_t *gsn, int version,
 			 struct sockaddr_in *peer, int fd,
 			 void *pack, unsigned len);
-extern int gtp_echo_ind(struct gsn_t *gsn, int version, 
-			struct sockaddr_in *peer, int fd, 
+extern int gtp_echo_ind(struct gsn_t *gsn, int version,
+			struct sockaddr_in *peer, int fd,
 			void *pack, unsigned len);
-extern int gtp_echo_conf(struct gsn_t *gsn, int version, 
+extern int gtp_echo_conf(struct gsn_t *gsn, int version,
 			 struct sockaddr_in *peer,
 			 void *pack, unsigned len);
 
-extern int gtp_unsup_req(struct gsn_t *gsn, int version, 
+extern int gtp_unsup_req(struct gsn_t *gsn, int version,
 			 struct sockaddr_in *peer,
 			 int fd, void *pack, unsigned len);
 extern int gtp_unsup_ind(struct gsn_t *gsn, struct sockaddr_in *peer,
 			 void *pack, unsigned len);
 
-extern int gtp_create_pdp_resp(struct gsn_t *gsn, int version, 
+extern int gtp_create_pdp_resp(struct gsn_t *gsn, int version,
 			       struct pdp_t *pdp, uint8_t cause);
 
 extern int gtp_create_pdp_ind(struct gsn_t *gsn, int version,
@@ -386,7 +386,7 @@ extern int gtp_delete_pdp_req(struct gsn_t *gsn, int version, void *cbp,
 
 extern int gtp_delete_pdp_resp(struct gsn_t *gsn, int version,
 			       struct sockaddr_in *peer, int fd,
-			       void *pack, unsigned len, 
+			       void *pack, unsigned len,
 			       struct pdp_t *pdp, struct pdp_t *linked_pdp,
 			       uint8_t cause, int teardown);
 

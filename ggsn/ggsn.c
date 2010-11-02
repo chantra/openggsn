@@ -1,12 +1,12 @@
-/* 
+/*
  * OpenGGSN - Gateway GPRS Support Node
  * Copyright (C) 2002, 2003, 2004 Mondru AB.
- * 
+ *
  * The contents of this file may be used under the terms of the GNU
  * General Public License Version 2, provided that the above copyright
  * notice and this permission notice is included in all copies or
  * substantial portions of the software.
- * 
+ *
  */
 
 /* ggsn.c
@@ -39,7 +39,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include <sys/socket.h>  
+#include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
 
@@ -80,7 +80,7 @@ void signal_handler(int s) {
 void log_pid(char *pidfile) {
   FILE *file;
   mode_t oldmask;
-  
+
   oldmask = umask(022);
   file = fopen(pidfile, "w");
   umask(oldmask);
@@ -108,7 +108,7 @@ int daemon(int nochdir, int noclose) {
 
   if (setsid() == -1)
     return (-1);
-  
+
   if (!nochdir) chdir("/");
 
   if (!noclose && (fd = open("/dev/null", O_RDWR, 0)) != -1) {
@@ -131,7 +131,7 @@ int encaps_printf(void *p, void *packet, unsigned len)
       printf("%02x ", (unsigned char)*(char *)(packet+i));
       if (!((i+1)%16)) printf("\n");
     };
-    printf("\n"); 
+    printf("\n");
   }
   return 0;
 }
@@ -160,7 +160,7 @@ int create_context_ind(struct pdp_t *pdp) {
 
   memcpy(pdp->qos_neg.v, pdp->qos_req.v, pdp->qos_req.l); /* TODO */
   pdp->qos_neg.l = pdp->qos_req.l;
-  
+
   if (pdp_euaton(&pdp->eua, &addr)) {
     addr.s_addr = 0; /* Request dynamic */
   }
@@ -185,7 +185,7 @@ int cb_tun_ind(struct tun_t *tun, void *pack, unsigned len) {
   struct ippoolm_t *ipm;
   struct in_addr dst;
   struct tun_packet_t *iph = (struct tun_packet_t*) pack;
-  
+
   dst.s_addr = iph->dst;
 
   if (debug) printf("Received packet from tun!\n");
@@ -194,7 +194,7 @@ int cb_tun_ind(struct tun_t *tun, void *pack, unsigned len) {
     if (debug) printf("Received packet with no destination!!!\n");
     return 0;
   }
-  
+
   if (ipm->peer) /* Check if a peer protocol is defined */
     gtp_data_req(gsn, (struct pdp_t*) ipm->peer, pack, len);
   return 0;
@@ -221,7 +221,7 @@ int main(int argc, char **argv)
   s.sa_flags = SA_RESETHAND;
   if ((sigaction(SIGINT, &s, NULL) != 0) && debug)
     printf("Could not register SIGINT signal handler.\n");
-	
+
   fd_set fds;			/* For select() */
   struct timeval idleTime;	/* How long to select() */
 
@@ -260,7 +260,7 @@ int main(int argc, char **argv)
   }
 
   /* Try out our new parser */
-  
+
   if (cmdline_parser_configfile (args_info.conf_arg, &args_info, 0, 0, 0) != 0)
     exit(1);
   if (args_info.debug_flag) {
@@ -307,7 +307,7 @@ int main(int argc, char **argv)
 	    "edit %s configuration file\n", args_info.conf_arg);
     exit(1);
   }
-  
+
 
   /* net                                                          */
   /* Store net as in_addr net and mask                            */
@@ -387,7 +387,7 @@ int main(int argc, char **argv)
   pco.l = 20;
   pco.v[0] = 0x80; /* x0000yyy x=1, yyy=000: PPP */
   pco.v[1] = 0x80; /* IPCP */
-  pco.v[2] = 0x21; 
+  pco.v[2] = 0x21;
   pco.v[3] = 0x10; /* Length of contents */
   pco.v[4] = 0x02; /* ACK */
   pco.v[5] = 0x00; /* ID: Need to match request */
@@ -409,7 +409,7 @@ int main(int argc, char **argv)
   /* Timelimit                                                       */
   timelimit = args_info.timelimit_arg;
   starttime = time(NULL);
-  
+
   /* qos                                                             */
   qos.l = 3;
   qos.v[2] = (args_info.qos_arg) & 0xff;
@@ -432,7 +432,7 @@ int main(int argc, char **argv)
     {
       FILE *f;
       int rc;
-      closelog(); 
+      closelog();
       /* Close the standard file descriptors. */
       /* Is this really needed ? */
       f = freopen("/dev/null", "w", stdout);
@@ -464,10 +464,10 @@ int main(int argc, char **argv)
   if (args_info.pidfile_arg) {
     log_pid(args_info.pidfile_arg);
   }
-  
+
 
   if (debug) printf("gtpclient: Initialising GTP tunnel\n");
-  
+
   if (gtp_new(&gsn, args_info.statedir_arg,  &listen_, GTP_MODE_GGSN)) {
     sys_err(LOG_ERR, __FILE__, __LINE__, 0,
 	    "Failed to create gtp");
@@ -502,7 +502,7 @@ int main(int argc, char **argv)
 
   tun_set_cb_ind(tun, cb_tun_ind);
   if (tun->fd > maxfd) maxfd = tun->fd;
-  
+
   if (ipup) tun_runscript(tun, ipup);
 
   /******************************************************************/
@@ -516,7 +516,7 @@ int main(int argc, char **argv)
     FD_SET(gsn->fd0, &fds);
     FD_SET(gsn->fd1c, &fds);
     FD_SET(gsn->fd1u, &fds);
-    
+
     gtp_retranstimeout(gsn, &idleTime);
     switch (select(maxfd + 1, &fds, NULL, NULL, &idleTime)) {
     case -1:	/* errno == EINTR : unblocked signal */
@@ -524,38 +524,38 @@ int main(int argc, char **argv)
 	      "select() returned -1");
       /* On error, select returns without modifying fds */
       FD_ZERO(&fds);
-      break;  
+      break;
     case 0:
       /* printf("Select returned 0\n"); */
       gtp_retrans(gsn); /* Only retransmit if nothing else */
-      break; 
+      break;
     default:
       break;
     }
 
-    if (tun->fd != -1 && FD_ISSET(tun->fd, &fds) && 
+    if (tun->fd != -1 && FD_ISSET(tun->fd, &fds) &&
 	tun_decaps(tun) < 0) {
       sys_err(LOG_ERR, __FILE__, __LINE__, 0,
 	      "TUN read failed (fd)=(%d)", tun->fd);
     }
-    
+
     if (FD_ISSET(gsn->fd0, &fds))
       gtp_decaps0(gsn);
-    
+
     if (FD_ISSET(gsn->fd1c, &fds))
       gtp_decaps1c(gsn);
-    
+
     if (FD_ISSET(gsn->fd1u, &fds))
       gtp_decaps1u(gsn);
-    
+
   }
 
   cmdline_parser_free(&args_info);
   ippool_free(ippool);
   gtp_free(gsn);
   tun_free(tun);
-  
+
   return 1;
-  
+
 }
 

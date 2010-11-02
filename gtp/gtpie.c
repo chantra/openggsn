@@ -1,17 +1,17 @@
-/* 
+/*
  *  OpenGGSN - Gateway GPRS Support Node
  *  Copyright (C) 2002 Mondru AB.
- * 
+ *
  *  The contents of this file may be used under the terms of the GNU
  *  General Public License Version 2, provided that the above copyright
  *  notice and this permission notice is included in all copies or
  *  substantial portions of the software.
- * 
+ *
  */
 
 /*
- * gtpie.c: Contains functions to encapsulate and decapsulate GTP 
- * information elements 
+ * gtpie.c: Contains functions to encapsulate and decapsulate GTP
+ * information elements
  *
  *
  * Encapsulation
@@ -134,7 +134,7 @@ int gtpie_gettv0(union gtpie_member* ie[], int type, int instance,
   return 0;
 }
 
-int gtpie_gettv1(union gtpie_member* ie[], int type, int instance, 
+int gtpie_gettv1(union gtpie_member* ie[], int type, int instance,
 		 uint8_t *dst){
   int ien;
   ien = gtpie_getie(ie, type, instance);
@@ -145,7 +145,7 @@ int gtpie_gettv1(union gtpie_member* ie[], int type, int instance,
   return 0;
 }
 
-int gtpie_gettv2(union gtpie_member* ie[], int type, int instance, 
+int gtpie_gettv2(union gtpie_member* ie[], int type, int instance,
 		 uint16_t *dst){
   int ien;
   ien = gtpie_getie(ie, type, instance);
@@ -156,7 +156,7 @@ int gtpie_gettv2(union gtpie_member* ie[], int type, int instance,
   return 0;
 }
 
-int gtpie_gettv4(union gtpie_member* ie[], int type, int instance, 
+int gtpie_gettv4(union gtpie_member* ie[], int type, int instance,
 		 uint32_t *dst){
   int ien;
   ien = gtpie_getie(ie, type, instance);
@@ -167,7 +167,7 @@ int gtpie_gettv4(union gtpie_member* ie[], int type, int instance,
   return 0;
 }
 
-int gtpie_gettv8(union gtpie_member* ie[], int type, int instance, 
+int gtpie_gettv8(union gtpie_member* ie[], int type, int instance,
 		 uint64_t *dst){
   int ien;
   ien = gtpie_getie(ie, type, instance);
@@ -198,7 +198,7 @@ int gtpie_decaps(union gtpie_member* ie[], int version, void *pack, unsigned len
       };
       printf("\n");
     }
-    
+
     switch (*p) {
     case GTPIE_CAUSE:             /* TV GTPIE types with value length 1 */
     case GTPIE_REORDER:
@@ -214,7 +214,7 @@ int gtpie_decaps(union gtpie_member* ie[], int version, void *pack, unsigned len
     case GTPIE_MS_NOT_REACH:
       if (j<GTPIE_SIZE) {
 	ie[j] = (union gtpie_member*) p;
-	if (GTPIE_DEBUG) printf("GTPIE TV1 found. Type %d, value %d\n", 
+	if (GTPIE_DEBUG) printf("GTPIE TV1 found. Type %d, value %d\n",
 				ie[j]->tv1.t, ie[j]->tv1.v);
 	p+= 1 + 1;
 	j++;
@@ -240,7 +240,7 @@ int gtpie_decaps(union gtpie_member* ie[], int version, void *pack, unsigned len
     case GTPIE_TRACE_TYPE:
       if (j<GTPIE_SIZE) {
 	ie[j] = (union gtpie_member*) p;
-	if (GTPIE_DEBUG) printf("GTPIE TV2 found. Type %d, value %d\n", 
+	if (GTPIE_DEBUG) printf("GTPIE TV2 found. Type %d, value %d\n",
 	       ie[j]->tv2.t, ie[j]->tv2.v);
 	p+= 1 + 2;
 	j++;
@@ -250,8 +250,8 @@ int gtpie_decaps(union gtpie_member* ie[], int version, void *pack, unsigned len
     case GTPIE_P_TMSI_S:
       if (j<GTPIE_SIZE) {
 	ie[j] = (union gtpie_member*) p;
-	if (GTPIE_DEBUG) printf("GTPIE TV 3 found. Type %d, value %d, %d, %d\n", 
-				ie[j]->tv0.t, ie[j]->tv0.v[0], 
+	if (GTPIE_DEBUG) printf("GTPIE TV 3 found. Type %d, value %d, %d, %d\n",
+				ie[j]->tv0.t, ie[j]->tv0.v[0],
 				ie[j]->tv0.v[1], ie[j]->tv0.v[2]);
 	p+= 1 + 3;
 	j++;
@@ -344,7 +344,7 @@ int gtpie_decaps(union gtpie_member* ie[], int version, void *pack, unsigned len
     default:
       if (GTPIE_DEBUG) printf("GTPIE something unknown. Type %d\n", *p);
       return EOF; /* We received something unknown */
-    }	
+    }
   }
   if (p==end) {
     if (GTPIE_DEBUG) printf("GTPIE normal return. %lx %lx\n",
@@ -368,13 +368,13 @@ int gtpie_encaps(union gtpie_member *ie[], void *pack, unsigned *len) {
   unsigned char *end;
   union gtpie_member *m;
   int iesize;
-  
+
   p = pack;
 
   memset(pack, 0, GTPIE_MAX);
   end = p + GTPIE_MAX;
   for (i=1; i<GTPIE_SIZE; i++) if (ie[i] != 0) {
-    if (GTPIE_DEBUG) printf("gtpie_encaps. Type %d\n", i); 
+    if (GTPIE_DEBUG) printf("gtpie_encaps. Type %d\n", i);
     m=(union gtpie_member *)p;
     switch (i) {
     case GTPIE_CAUSE:             /* TV GTPIE types with value length 1 */
@@ -465,13 +465,13 @@ int gtpie_encaps2(union gtpie_member ie[], unsigned int size,
   unsigned char *end;
   union gtpie_member *m;
   int iesize;
-  
+
   p = pack;
 
   memset(pack, 0, GTPIE_MAX);
   end = p + GTPIE_MAX;
   for (j=0; j<GTPIE_SIZE; j++) for (i=0; i<size; i++) if (ie[i].t == j) {
-    if (GTPIE_DEBUG) printf("gtpie_encaps. Number %d, Type %d\n", i, ie[i].t); 
+    if (GTPIE_DEBUG) printf("gtpie_encaps. Number %d, Type %d\n", i, ie[i].t);
     m=(union gtpie_member *)p;
     switch (ie[i].t) {
     case GTPIE_CAUSE:             /* TV GTPIE types with value length 1 */

@@ -6,7 +6,7 @@
  * General Public License Version 2, provided that the above copyright
  * notice and this permission notice is included in all copies or
  * substantial portions of the software.
- * 
+ *
  */
 
 #include <sys/types.h>
@@ -32,12 +32,12 @@ int ippool_printaddr(struct ippool_t *this) {
   printf("Listsize %d\n",  this->listsize);
 
   for (n=0; n<this->listsize; n++) {
-    printf("Unit %d inuse %d prev %d next %d addr %s %x\n", 
+    printf("Unit %d inuse %d prev %d next %d addr %s %x\n",
 	   n,
 	   this->member[n].inuse,
 	   this->member[n].prev - this->member,
 	   this->member[n].next - this->member,
-	   inet_ntoa(this->member[n].addr),	
+	   inet_ntoa(this->member[n].addr),
 	   this->member[n].addr.s_addr
 	   );
   }
@@ -47,7 +47,7 @@ int ippool_printaddr(struct ippool_t *this) {
 int ippool_hashadd(struct ippool_t *this, struct ippoolm_t *member) {
   uint32_t hash;
   struct ippoolm_t *p;
-  struct ippoolm_t *p_prev = NULL; 
+  struct ippoolm_t *p_prev = NULL;
 
   /* Insert into hash table */
   hash = ippool_hash4(&member->addr) & this->hashmask;
@@ -55,7 +55,7 @@ int ippool_hashadd(struct ippool_t *this, struct ippoolm_t *member) {
     p_prev = p;
   if (!p_prev)
     this->hash[hash] = member;
-  else 
+  else
     p_prev->nexthash = member;
   return 0; /* Always OK to insert */
 }
@@ -63,7 +63,7 @@ int ippool_hashadd(struct ippool_t *this, struct ippoolm_t *member) {
 int ippool_hashdel(struct ippool_t *this, struct ippoolm_t *member) {
   uint32_t hash;
   struct ippoolm_t *p;
-  struct ippoolm_t *p_prev = NULL; 
+  struct ippoolm_t *p_prev = NULL;
 
   /* Find in hash table */
   hash = ippool_hash4(&member->addr) & this->hashmask;
@@ -156,7 +156,7 @@ int ippool_aton(struct in_addr *addr, struct in_addr *mask,
 }
 
 /* Create new address pool */
-int ippool_new(struct ippool_t **this, char *dyn,  char *stat, 
+int ippool_new(struct ippool_t **this, char *dyn,  char *stat,
 	       int allowdyn, int allowstat, int flags) {
 
   /* Parse only first instance of pool for now */
@@ -176,16 +176,16 @@ int ippool_new(struct ippool_t **this, char *dyn,  char *stat,
   }
   else {
     if (ippool_aton(&addr, &mask, dyn, 0)) {
-      sys_err(LOG_ERR, __FILE__, __LINE__, 0, 
+      sys_err(LOG_ERR, __FILE__, __LINE__, 0,
 	      "Failed to parse dynamic pool");
       return -1;
     }
 
     /* Set IPPOOL_NONETWORK if IPPOOL_NOGATEWAY is set */
-    if (flags & IPPOOL_NOGATEWAY) {   
+    if (flags & IPPOOL_NOGATEWAY) {
       flags |= IPPOOL_NONETWORK;
     }
-    
+
     m = ntohl(mask.s_addr);
     dynsize = ((~m)+1);
     if (flags & IPPOOL_NONETWORK)   /* Exclude network address from pool */
@@ -220,7 +220,7 @@ int ippool_new(struct ippool_t **this, char *dyn,  char *stat,
 	    "Failed to allocate memory for ippool");
     return -1;
   }
-  
+
   (*this)->allowdyn  = allowdyn;
   (*this)->allowstat = allowstat;
   (*this)->stataddr  = stataddr;
@@ -232,8 +232,8 @@ int ippool_new(struct ippool_t **this, char *dyn,  char *stat,
 		"Failed to allocate memory for members in ippool");
     return -1;
   }
-  
-  for ((*this)->hashlog = 0; 
+
+  for ((*this)->hashlog = 0;
        ((1 << (*this)->hashlog) < listsize);
        (*this)->hashlog++);
 
@@ -242,14 +242,14 @@ int ippool_new(struct ippool_t **this, char *dyn,  char *stat,
   /* Determine hashsize */
   (*this)->hashsize = 1 << (*this)->hashlog; /* Fails if mask=0: All Internet*/
   (*this)->hashmask = (*this)->hashsize -1;
-  
+
   /* Allocate hash table */
   if (!((*this)->hash = calloc(sizeof(struct ippoolm_t), (*this)->hashsize))){
     sys_err(LOG_ERR, __FILE__, __LINE__, 0,
 	    "Failed to allocate memory for hash members in ippool");
     return -1;
   }
-  
+
   (*this)->firstdyn = NULL;
   (*this)->lastdyn = NULL;
   for (i = 0; i<dynsize; i++) {
@@ -260,7 +260,7 @@ int ippool_new(struct ippool_t **this, char *dyn,  char *stat,
       (*this)->member[i].addr.s_addr = htonl(ntohl(addr.s_addr) + i + 1);
     else
       (*this)->member[i].addr.s_addr = htonl(ntohl(addr.s_addr) + i);
-    
+
     (*this)->member[i].inuse = 0;
 
     /* Insert into list of unused */
@@ -343,7 +343,7 @@ int ippool_newip(struct ippool_t *this, struct ippoolm_t **member,
   uint32_t hash;
 
   /* If static:
-   *   Look in dynaddr. 
+   *   Look in dynaddr.
    *     If found remove from firstdyn/lastdyn linked list.
    *   Else allocate from stataddr.
    *    Remove from firststat/laststat linked list.
@@ -369,9 +369,9 @@ int ippool_newip(struct ippool_t *this, struct ippoolm_t **member,
   }
   else {
     if (!this->allowdyn) {
-      sys_err(LOG_ERR, __FILE__, __LINE__, 0, 
+      sys_err(LOG_ERR, __FILE__, __LINE__, 0,
 	      "Dynamic IP address not allowed");
-      return -1; 
+      return -1;
     }
   }
 
@@ -389,40 +389,40 @@ int ippool_newip(struct ippool_t *this, struct ippoolm_t **member,
 
   /* If IP was already allocated we can not use it */
   if ((!statip) && (p2) && (p2->inuse)) {
-    p2 = NULL; 
+    p2 = NULL;
   }
 
   /* If not found yet and dynamic IP then allocate dynamic IP */
   if ((!p2) && (!statip)) {
     if (!this ->firstdyn) {
-      sys_err(LOG_ERR, __FILE__, __LINE__, 0, 
+      sys_err(LOG_ERR, __FILE__, __LINE__, 0,
 	      "No more IP addresses available");
       return -1;
     }
     else
       p2 = this ->firstdyn;
   }
-  
+
   if (p2) { /* Was allocated from dynamic address pool */
     if (p2->inuse) {
-      sys_err(LOG_ERR, __FILE__, __LINE__, 0, 
+      sys_err(LOG_ERR, __FILE__, __LINE__, 0,
 	      "IP address allready in use");
       return -1; /* Allready in use / Should not happen */
     }
 
     /* Remove from linked list of free dynamic addresses */
-    if (p2->prev) 
+    if (p2->prev)
       p2->prev->next = p2->next;
     else
       this->firstdyn = p2->next;
-    if (p2->next) 
+    if (p2->next)
       p2->next->prev = p2->prev;
     else
       this->lastdyn = p2->prev;
     p2->next = NULL;
     p2->prev = NULL;
     p2->inuse = 1; /* Dynamic address in use */
-    
+
     *member = p2;
     if (0) (void)ippool_printaddr(this);
     return 0; /* Success */
@@ -433,7 +433,7 @@ int ippool_newip(struct ippool_t *this, struct ippoolm_t **member,
 
   if ((addr) && (addr->s_addr) && (statip)) { /* IP address given */
     if (!this->firststat) {
-      sys_err(LOG_ERR, __FILE__, __LINE__, 0, 
+      sys_err(LOG_ERR, __FILE__, __LINE__, 0,
 	      "No more IP addresses available");
       return -1; /* No more available */
     }
@@ -441,11 +441,11 @@ int ippool_newip(struct ippool_t *this, struct ippoolm_t **member,
       p2 = this ->firststat;
 
     /* Remove from linked list of free static addresses */
-    if (p2->prev) 
+    if (p2->prev)
       p2->prev->next = p2->next;
     else
       this->firststat = p2->next;
-    if (p2->next) 
+    if (p2->next)
       p2->next->prev = p2->prev;
     else
       this->laststat = p2->prev;
@@ -459,14 +459,14 @@ int ippool_newip(struct ippool_t *this, struct ippoolm_t **member,
     return 0; /* Success */
   }
 
-  sys_err(LOG_ERR, __FILE__, __LINE__, 0, 
+  sys_err(LOG_ERR, __FILE__, __LINE__, 0,
 	  "Could not allocate IP address");
   return -1; /* Should never get here. TODO: Bad code */
 }
 
 
 int ippool_freeip(struct ippool_t *this, struct ippoolm_t *member) {
-  
+
   if (0) (void)ippool_printaddr(this);
 
   if (!member->inuse) {
@@ -488,7 +488,7 @@ int ippool_freeip(struct ippool_t *this, struct ippoolm_t *member) {
       this->firstdyn = member;
     }
     this->lastdyn = member;
-    
+
     member->inuse = 0;
     member->peer = NULL;
     if (0) (void)ippool_printaddr(this);
@@ -505,7 +505,7 @@ int ippool_freeip(struct ippool_t *this, struct ippoolm_t *member) {
       this->firststat = member;
     }
     this->laststat = member;
-    
+
     member->inuse = 0;
     member->addr.s_addr = 0;
     member->peer = NULL;
