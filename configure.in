@@ -51,13 +51,6 @@ AC_SUBST(EXEC_LDADD)
 
 # Checks for libraries.
 
-# This macro is defined in check.m4 and tests if check.h and
-# libcheck.a are installed in your system. It sets CHECK_CFLAGS and
-# CHECK_LIBS accordingly.
-#  AM_PATH_CHECK([MINIMUM-VERSION,
-#                [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]]])
-AM_PATH_CHECK()
-
 # Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
@@ -156,13 +149,21 @@ dnl Build gtpdump if libpcap is installed
 dnl
 
 have_pcap=no
-AC_PATH_PROG([PCAP_CONFIG], [pcap-config], [yes], [no])
+AC_CHECK_PROG([PCAP_CONFIG], [pcap-config], [yes], [no])
 if test "x$PCAP_CONFIG" = "xyes"; then
   have_pcap=yes
   PCAP_LIBS=`pcap-config --libs`
   AC_SUBST(PCAP_LIBS)
   PCAP_CFLAGS=`pcap-config --cflags`
   AC_SUBST(PCAP_CFLAGS)
+else
+  AC_CHECK_LIB([pcap], pcap_open_offline,have_pcap=yes,have_pcap=no)
+  if test "x$have_pcap" = "xyes"; then
+    PCAP_LIBS="-L/usr/lib  -lpcap"
+    AC_SUBST(PCAP_LIBS)
+    PCAP_CFLAGS="-I/usr/include"
+    AC_SUBST(PCAP_CFLAGS)
+  fi
 fi
 
 
