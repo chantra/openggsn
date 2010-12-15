@@ -90,8 +90,8 @@ int gtpie_tv8(void *p, unsigned int *length, unsigned int size, uint8_t t, uint6
 
 int gtpie_getie(union gtpie_member* ie[], int type, int instance) {
   int j;
-  for (j=0; j< GTPIE_SIZE; j++) {
-    if ((ie[j] != 0) && (ie[j]->t == type)) {
+  for (j=0; j< GTPIE_SIZE && ie[j] ; j++) {
+    if (ie[j]->t == type) {
       if (instance-- == 0) return j;
     }
   }
@@ -118,7 +118,8 @@ int gtpie_gettlv(union gtpie_member* ie[], int type, int instance,
       memcpy(dst, ie[ien]->tlv.v, *length);
     else
       return EOF;
-  }
+  }else
+		return EOF;
   return 0;
 }
 
