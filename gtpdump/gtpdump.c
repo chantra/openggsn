@@ -22,7 +22,11 @@
 
 
 #include <pcap.h>
-#include <pcap/sll.h>
+
+/**
+ * #include <pcap/sll.h>
+*/
+#include "sll.h"
 
 #include <syslog.h>
 
