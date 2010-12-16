@@ -518,6 +518,7 @@ main (int argc, char **argv){
 	fprintf(stderr, "Read %d packets\n", cnt);
 	pcap_close (pcap_handle);
 	if (pdp_ctx.dumper){
+		pcap_dump_flush (pdp_ctx.dumper);
 		pcap_dump_close (pdp_ctx.dumper);
 	}
 	return 0;
