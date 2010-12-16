@@ -32,6 +32,7 @@ gtpdump/Makefile.in
 */.deps
 */.libs
 */Makefile
+m4/*m4
 compile
 ggsn/ggsn
 sgsnemu/sgsnemu
