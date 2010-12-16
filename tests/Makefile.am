@@ -18,4 +18,4 @@ check_libs_SOURCES = check_libs.c \
 										$(GTPDUMP_SOURCES)
 
 check_libs_CFLAGS = @CHECK_CFLAGS@
-check_libs_LDADD =  @CHECK_LIBS@ @LIBOBJS@ @EXEC_LDADD@ -lgtp -L../gtp $(GTPDUMP_LIBS)
+check_libs_LDADD =  @CHECK_LIBS@ @EXEC_LDADD@ -lgtp -L../gtp $(GTPDUMP_LIBS)
