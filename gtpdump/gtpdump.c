@@ -126,9 +126,17 @@ ip_format(u_char *ip){
 }
 
 void
+pcap_dump_and_flush (pcap_dumper_t *dumper, const struct pcap_pkthdr *h, const u_char *sp){
+	pcap_dump ((u_char *)dumper, h, sp);
+	if (pcap_dump_flush (dumper) == -1){
+		fprintf (stderr, "pcap_dump_flush: Could not flush to file\n");
+	}
+}
+
+void
 handle_gtpv0_packet (u_char *udata, uint32_t len, u_char *packet, const struct pcap_pkthdr *h, const u_char *sp){
 	union gtp_packet *gp = (union gtp_packet *)packet;
-	fprintf(stdout, "GTPv%d PROTOCOL: %d TYPE: 0x%2X LENGTH: %d\n", GTP_V(gp), GTP_PT(gp), GTP_TYPE(gp), GTP_LENGTH(gp));
+	fprintf(stderr, "GTPv%d PROTOCOL: %d TYPE: 0x%2X LENGTH: %d\n", GTP_V(gp), GTP_PT(gp), GTP_TYPE(gp), GTP_LENGTH(gp));
 }
 
 void
@@ -172,7 +180,7 @@ handle_gtpv1_packet (u_char *udata, uint32_t len, u_char *packet, const struct p
 			/* there is an imsi and it is ours */
 			/* save to dump file */
 			if (pdp_ctx->dumper){
-				pcap_dump ((u_char *)pdp_ctx->dumper, h, sp);
+				pcap_dump_and_flush (pdp_ctx->dumper, h, sp);
 			}
 			if(gtpie_gettv4(ie, GTPIE_TEI_DI, 0, &pdp_ctx->teid_gn)){
 				sys_err(LOG_ERR, __FILE__, __LINE__, 0, "Missing TEID Data in PDP_CTX_REQ");
@@ -190,7 +198,7 @@ handle_gtpv1_packet (u_char *udata, uint32_t len, u_char *packet, const struct p
 		if (gp->gtp1s.h.tei == pdp_ctx->teic_gn){
 			/* anyhow, we save packet */
 			if (pdp_ctx->dumper){
-				pcap_dump ((u_char *)pdp_ctx->dumper, h, sp);
+				pcap_dump_and_flush (pdp_ctx->dumper, h, sp);
 			}
 			/* decapsulate packet */
 			if(gtpie_decaps (ie, GTP_V(gp), (u_char *)gp + hlen, len-hlen)){
@@ -233,21 +241,21 @@ handle_gtpv1_packet (u_char *udata, uint32_t len, u_char *packet, const struct p
 	}else if (GTP_TYPE(gp) == GTP_DELETE_PDP_REQ){
 		if (gp->gtp1s.h.tei == pdp_ctx->teic_own){
 			if (pdp_ctx->dumper){
-				pcap_dump ((u_char *)pdp_ctx->dumper, h, sp);
+				pcap_dump_and_flush (pdp_ctx->dumper, h, sp);
 			}
 		}
 	/* DELETE_PDP_CONTEXT_RESPONSE */
 	}else if (GTP_TYPE(gp) == GTP_DELETE_PDP_RSP){
 		if (gp->gtp1s.h.tei == pdp_ctx->teic_gn){
 			if (pdp_ctx->dumper){
-				pcap_dump ((u_char *)pdp_ctx->dumper, h, sp);
+				pcap_dump_and_flush (pdp_ctx->dumper, h, sp);
 			}
 		}
 	}else if (GTP_TYPE(gp) == GTP_GPDU){
 		/* check if teid is one of sgsn/ggsn data teid and keep the packet */
 		if (gp->gtp1s.h.tei == pdp_ctx->teid_own || gp->gtp1s.h.tei == pdp_ctx->teid_gn){
 			if (pdp_ctx->dumper){
-				pcap_dump ((u_char *)pdp_ctx->dumper, h, sp);
+				pcap_dump_and_flush (pdp_ctx->dumper, h, sp);
 			}
 		}
 		/*
