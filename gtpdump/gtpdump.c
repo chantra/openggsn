@@ -72,7 +72,8 @@ struct option long_optstr[] = {
 	{ 0, 0, 0, 0 }
 };
 
-int cnt = 0;
+int write_cnt = 0;
+int read_cnt = 0;
 /* datalink of capture */
 int datalink = -1;
 uint8_t continue_snif = 1;
@@ -127,6 +128,7 @@ ip_format(u_char *ip){
 
 void
 pcap_dump_and_flush (pcap_dumper_t *dumper, const struct pcap_pkthdr *h, const u_char *sp){
+	write_cnt++;
 	pcap_dump ((u_char *)dumper, h, sp);
 	if (pcap_dump_flush (dumper) == -1){
 		fprintf (stderr, "pcap_dump_flush: Could not flush to file\n");
@@ -293,7 +295,7 @@ pcap_callback (u_char *udata, const struct pcap_pkthdr *header, const u_char *pa
 	struct ip *ip = NULL;
 	struct udphdr *udp = NULL;
 	u_int16_t dport, sport;
-
+	read_cnt++;
 	/**
 	* Get IP packet from different datalink type
 	*/
@@ -328,7 +330,6 @@ pcap_callback (u_char *udata, const struct pcap_pkthdr *header, const u_char *pa
 	udp = (struct udphdr *)(((u_char *)ip)+4*(ip->ip_hl));
 	sport = ntohs (udp->source);
 	dport = ntohs (udp->dest);
-	cnt++;
 /*
 	fprintf (stdout, "%s", ts_format(ts.tv_sec % 86400, ts.tv_usec));
 	fprintf( stdout, " IP %s.%d > ", inet_ntoa(ip->ip_src), sport);
@@ -515,7 +516,7 @@ main (int argc, char **argv){
 	/*
 	while ( ( rc = pcap_loop (pcap_handle, 1, pcap_callback, (u_char *)&pdp_ctx))
 	*/
-	fprintf(stderr, "Read %d packets\n", cnt);
+	fprintf(stderr, "Read %d packets, Wrote %d packets\n", read_cnt, write_cnt);
 	pcap_close (pcap_handle);
 	if (pdp_ctx.dumper){
 		pcap_dump_flush (pdp_ctx.dumper);
