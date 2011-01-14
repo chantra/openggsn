@@ -60,7 +60,7 @@
 
 #define FILTER_STRING "port 1812 or port 1813 or port 2123 or port 2152 or port 3386"
 
-char short_optstr[] = "r:i:w:I:M:s:h";
+char short_optstr[] = "r:i:w:I:M:s:h0";
 struct option long_optstr[] = {
 	{ "read", 1, 0, 'r' },
 	{ "interface", 1, 0, 'i' },
