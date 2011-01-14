@@ -69,6 +69,7 @@ struct option long_optstr[] = {
 	{ "msisdn", 1, 0, 'M' },
 	{ "snaplen", 1, 0, 's' },
 	{ "help", 0, 0, 'h' },
+	{ "v0", 0, 0, '0' },
 	{ 0, 0, 0, 0 }
 };
 
@@ -90,7 +91,8 @@ struct pdp_ctx {
   uint32_t    teid_gn;  /* Tunnel Endpoint Identifier for the Gn and Gp interfaces. (Data I) */
   uint32_t    tei_iu;   /* Tunnel Endpoint Identifier for the Iu interface. */
 
-	pcap_dumper_t *dumper;
+  pcap_dumper_t *dumper;
+  uint8_t     v0;				/* shall we dump v0 packets, for debugging purpose */
 };
 
 void
@@ -137,8 +139,12 @@ pcap_dump_and_flush (pcap_dumper_t *dumper, const struct pcap_pkthdr *h, const u
 
 void
 handle_gtpv0_packet (u_char *udata, uint32_t len, u_char *packet, const struct pcap_pkthdr *h, const u_char *sp){
+	struct pdp_ctx *pdp_ctx = (struct pdp_ctx *)udata;
 	union gtp_packet *gp = (union gtp_packet *)packet;
 	fprintf(stderr, "GTPv%d PROTOCOL: %d TYPE: 0x%2X LENGTH: %d\n", GTP_V(gp), GTP_PT(gp), GTP_TYPE(gp), GTP_LENGTH(gp));
+	if (pdp_ctx->v0 && pdp_ctx->dumper){
+		pcap_dump_and_flush (pdp_ctx->dumper, h, sp);
+	}
 }
 
 void
@@ -377,6 +383,9 @@ main (int argc, char **argv){
 				break;
 			case 'r':
 				options.read = optarg;
+				break;
+			case '0':
+				pdp_ctx.v0 = 1;
 				break;
 			case 'w':
 				options.write = optarg;
