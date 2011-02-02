@@ -59,8 +59,9 @@
 
 
 #define FILTER_STRING "port 1812 or port 1813 or port 2123 or port 2152 or port 3386"
+#define MAX_IPS 64
 
-char short_optstr[] = "r:i:w:I:M:s:h0";
+char short_optstr[] = "r:i:w:I:M:s:H:h0";
 struct option long_optstr[] = {
 	{ "read", 1, 0, 'r' },
 	{ "interface", 1, 0, 'i' },
@@ -68,6 +69,7 @@ struct option long_optstr[] = {
 	{ "imsi", 1, 0, 'I' },
 	{ "msisdn", 1, 0, 'M' },
 	{ "snaplen", 1, 0, 's' },
+	{ "hosts", 1, 0, 'H' },
 	{ "help", 0, 0, 'h' },
 	{ "v0", 0, 0, '0' },
 	{ 0, 0, 0, 0 }
@@ -90,6 +92,7 @@ struct pdp_ctx {
   uint32_t    teic_gn;  /* Tunnel Endpoint Identifier for the Gn and Gp interfaces. (Control plane) */
   uint32_t    teid_gn;  /* Tunnel Endpoint Identifier for the Gn and Gp interfaces. (Data I) */
   uint32_t    tei_iu;   /* Tunnel Endpoint Identifier for the Iu interface. */
+  struct in_addr	ips[MAX_IPS+1]; /* ip to monitor */
 
   pcap_dumper_t *dumper;
   uint8_t     v0;				/* shall we dump v0 packets, for debugging purpose */
@@ -128,6 +131,41 @@ ip_format(u_char *ip){
 	return buf;
 }
 
+
+int gtpdump_options_load_ips(struct pdp_ctx *ctx, const char *str){
+	struct in_addr ip;
+	int rc;
+	int ips = 0;
+	const char *start, *end;
+	char ip_cpy[BUFSIZ];
+	start = str;
+	while(1){
+		if(ips >= MAX_IPS){
+			fprintf( stderr, "Maximum number of ips (%d) reached, skipping the remaining ones\n", MAX_IPS);
+			break;
+		}
+		end = strchr( start, ',');
+		if(end == NULL){
+			end = str + strlen(str);
+		}
+		strncpy(ip_cpy, start, end - start);
+		ip_cpy[end - start] = 0;
+		rc = inet_aton (ip_cpy, &ip);
+		if( rc == 0){
+			fprintf(stderr, "Could not conver IP %s, skipping it\n", ip_cpy);
+		}else{
+			ctx->ips[ips] = ip;
+			ips++;
+		}
+		/* we have reached end of str */
+		if(*end == 0)
+			break;
+		/* forward start to old end */
+		start = end+1;
+	}
+	return 0;
+}
+
 void
 pcap_dump_and_flush (pcap_dumper_t *dumper, const struct pcap_pkthdr *h, const u_char *sp){
 	write_cnt++;
@@ -153,6 +191,8 @@ handle_gtpv1_packet (u_char *udata, uint32_t len, u_char *packet, const struct p
 	union gtp_packet *gp = (union gtp_packet *)packet;
 	union gtpie_member* ie[GTPIE_SIZE];
 	int hlen = GTP_HLEN(gp);
+	struct ip *ip = NULL;
+
 
 /*
 	struct ul255_t apn_req;
@@ -265,6 +305,20 @@ handle_gtpv1_packet (u_char *udata, uint32_t len, u_char *packet, const struct p
 			if (pdp_ctx->dumper){
 				pcap_dump_and_flush (pdp_ctx->dumper, h, sp);
 			}
+			return;
+		}
+		/* finally, is it an ip we look for ? */
+		ip = (struct ip *)((void *)gp + GTP_HLEN(gp));
+		int i = 0;
+		while((pdp_ctx->ips+i)->s_addr){
+			struct in_addr *ipm = pdp_ctx->ips+i;
+			if(ip->ip_src.s_addr == ipm->s_addr || ip->ip_dst.s_addr == ipm->s_addr){
+				if (pdp_ctx->dumper){
+					pcap_dump_and_flush (pdp_ctx->dumper, h, sp);
+				}
+				return;
+			}
+			i++;
 		}
 		/*
 		if(gtpie_decaps (ie, GTP_V(gp), (u_char *)gp + hlen, len-hlen)){
@@ -421,6 +475,10 @@ main (int argc, char **argv){
 					options.snaplen = snaplen;
 				}
 				break;
+			case 'H':
+				gtpdump_options_load_ips(&pdp_ctx, optarg);
+				break;
+
 			case 'h':
 				usage(argv[0]);
 				return 1;
@@ -439,8 +497,8 @@ main (int argc, char **argv){
 	}
 
 	/* make sure msisdn XOR imsi is set */
-	if ((options.msisdn == NULL) == (options.imsi == NULL)){
-		fprintf(stderr, "ERROR: You must supply either -M (msisdn) or -I (imsi)!\n");
+	if (((options.msisdn == NULL) == (options.imsi == NULL) && (*(pdp_ctx.ips)).s_addr == 0)){
+		fprintf(stderr, "ERROR: You must supply either -M (msisdn) or -I (imsi), or IP addresses!\n");
 		usage(argv[0]);
 		return 1;
 	}
