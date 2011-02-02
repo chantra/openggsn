@@ -101,12 +101,16 @@ struct pdp_ctx {
 void
 usage(char *filename){
 	char *f = strdup (filename);
-	fprintf(stderr, "USAGE: %s [ -r file ] [ -w file ] [ -i interface ] [ -s snaplen ] [ -I imsi ] [ -M msisdn ]\n\
+	fprintf(stderr, "USAGE: %s [ -r file | -i interface ] [ -w file ] [ -s snaplen ] [ [ -I imsi | -M msisdn ] | -H ip1,ip2,... ]\n\
 Extract GTP traffic (Control+Data) for a given MSISDN or IMSI.\n\
 \n\
 It can either capture directly from the network or from an input file.\n\
+\t--interface\n\t-i:\tInterface to monitor (interface name or *any*)\n\n\
 \t--read\n\t-r:\tRead from file (- for stdin)\n\n\
 \t--write\n\t-w:\tWrite to file (- for stdout)\n\n\
+\t--imsi\n\t-I:\tIMSI to monitor\n\n\
+\t--msisdn\n\t-M:\tMSISDN to monitor (must be of the form +CCXXXXXXXX)\n\n\
+\t--hosts\t\t-H:\tComma separated list of IPs to monitor\n\n\
 ", basename(f));
 	free (f);
 	return;
