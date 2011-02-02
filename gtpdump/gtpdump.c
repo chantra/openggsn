@@ -110,7 +110,7 @@ It can either capture directly from the network or from an input file.\n\
 \t--write\n\t-w:\tWrite to file (- for stdout)\n\n\
 \t--imsi\n\t-I:\tIMSI to monitor\n\n\
 \t--msisdn\n\t-M:\tMSISDN to monitor (must be of the form +CCXXXXXXXX)\n\n\
-\t--hosts\t\t-H:\tComma separated list of IPs to monitor\n\n\
+\t--hosts\n\t-H:\tComma separated list of IPs to monitor\n\n\
 ", basename(f));
 	free (f);
 	return;
